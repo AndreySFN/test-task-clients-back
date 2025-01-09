@@ -1,6 +1,6 @@
 import { Module } from '@nestjs/common';
 import { MongooseModule } from '@nestjs/mongoose';
-import { ClientModule } from './client/client.module';
+import { ClientModule } from './app/client/client.module';
 
 @Module({
   imports: [

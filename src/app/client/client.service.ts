@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { BadRequestException, Injectable } from "@nestjs/common";
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
 import { Client } from './schemas/client.schema';
@@ -13,8 +13,8 @@ export class ClientService {
     return this.clientModel.create(client);
   }
 
-  async findAll(query: any): Promise<ClientDto[]> {
-    const { search, sortField, sortOrder } = query;
+  async findAll(query?: any): Promise<ClientDto[]> {
+    const { search, sortField, sortOrder } = query || {};
     const filter = search
       ? {
           $or: [

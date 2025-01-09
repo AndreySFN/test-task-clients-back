@@ -22,7 +22,7 @@ export class ClientController {
   }
 
   @Get()
-  async findAll(@Query() query: string) {
+  async findAll(@Query() query?: string) {
     return this.clientService.findAll(query);
   }
 
