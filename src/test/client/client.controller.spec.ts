@@ -1,6 +1,6 @@
 import { Test, TestingModule } from '@nestjs/testing';
-import { ClientController } from 'src/client/client.controller';
-import { ClientService } from 'src/client/client.service';
+import { ClientController } from '../../app/client/client.controller';
+import { ClientService } from '../../app/client/client.service';
 
 const mockClient = {
   _id: '64b7b9f8f8c8c9c8c9c8c9c8',
@@ -42,7 +42,7 @@ describe('ClientController', () => {
   });
 
   it('should find all clients', async () => {
-    const result = await controller.findAll({});
+    const result = await controller.findAll();
     expect(result).toEqual([mockClient]);
     expect(mockClientService.findAll).toHaveBeenCalled();
   });

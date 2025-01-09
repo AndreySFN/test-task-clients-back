@@ -1,7 +1,7 @@
 import { Test, TestingModule } from '@nestjs/testing';
 import { getModelToken } from '@nestjs/mongoose';
-import { ClientService } from 'src/client/client.service';
-import { Client } from 'src/client/schemas/client.schema';
+import { ClientService } from '../../app/client/client.service';
+import { Client } from '../../app/client/schemas/client.schema';
 import { Model } from 'mongoose';
 
 const mockClient = {
@@ -15,11 +15,20 @@ const mockClient = {
 
 const mockClientModel = {
   create: jest.fn().mockResolvedValue(mockClient),
-  find: jest.fn().mockResolvedValue([mockClient]),
-  findById: jest.fn().mockResolvedValue(mockClient),
-  findByIdAndUpdate: jest.fn().mockResolvedValue(mockClient),
-  findByIdAndDelete: jest.fn().mockResolvedValue(mockClient),
-  exec: jest.fn(),
+  find: jest.fn().mockReturnValue({
+    sort: jest.fn().mockReturnValue({
+      exec: jest.fn().mockResolvedValue([mockClient]),
+    }),
+  }),
+  findById: jest.fn().mockReturnValue({
+    exec: jest.fn().mockResolvedValue(mockClient),
+  }),
+  findByIdAndUpdate: jest.fn().mockReturnValue({
+    exec: jest.fn().mockResolvedValue(mockClient),
+  }),
+  findByIdAndDelete: jest.fn().mockReturnValue({
+    exec: jest.fn().mockResolvedValue(mockClient),
+  }),
 };
 
 describe('ClientService', () => {
@@ -49,7 +58,7 @@ describe('ClientService', () => {
   });
 
   it('should find all clients', async () => {
-    const result = await service.findAll({});
+    const result = await service.findAll();
     expect(result).toEqual([mockClient]);
     expect(model.find).toHaveBeenCalled();
   });
