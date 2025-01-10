@@ -1,99 +1,270 @@
-<p align="center">
-  <a href="http://nestjs.com/" target="blank"><img src="https://nestjs.com/img/logo-small.svg" width="120" alt="Nest Logo" /></a>
-</p>
 
-[circleci-image]: https://img.shields.io/circleci/build/github/nestjs/nest/master?token=abc123def456
-[circleci-url]: https://circleci.com/gh/nestjs/nest
+# Требования к системе для запуска
 
-  <p align="center">A progressive <a href="http://nodejs.org" target="_blank">Node.js</a> framework for building efficient and scalable server-side applications.</p>
-    <p align="center">
-<a href="https://www.npmjs.com/~nestjscore" target="_blank"><img src="https://img.shields.io/npm/v/@nestjs/core.svg" alt="NPM Version" /></a>
-<a href="https://www.npmjs.com/~nestjscore" target="_blank"><img src="https://img.shields.io/npm/l/@nestjs/core.svg" alt="Package License" /></a>
-<a href="https://www.npmjs.com/~nestjscore" target="_blank"><img src="https://img.shields.io/npm/dm/@nestjs/common.svg" alt="NPM Downloads" /></a>
-<a href="https://circleci.com/gh/nestjs/nest" target="_blank"><img src="https://img.shields.io/circleci/build/github/nestjs/nest/master" alt="CircleCI" /></a>
-<a href="https://coveralls.io/github/nestjs/nest?branch=master" target="_blank"><img src="https://coveralls.io/repos/github/nestjs/nest/badge.svg?branch=master#9" alt="Coverage" /></a>
-<a href="https://discord.gg/G7Qnnhy" target="_blank"><img src="https://img.shields.io/badge/discord-online-brightgreen.svg" alt="Discord"/></a>
-<a href="https://opencollective.com/nest#backer" target="_blank"><img src="https://opencollective.com/nest/backers/badge.svg" alt="Backers on Open Collective" /></a>
-<a href="https://opencollective.com/nest#sponsor" target="_blank"><img src="https://opencollective.com/nest/sponsors/badge.svg" alt="Sponsors on Open Collective" /></a>
-  <a href="https://paypal.me/kamilmysliwiec" target="_blank"><img src="https://img.shields.io/badge/Donate-PayPal-ff3f59.svg" alt="Donate us"/></a>
-    <a href="https://opencollective.com/nest#sponsor"  target="_blank"><img src="https://img.shields.io/badge/Support%20us-Open%20Collective-41B883.svg" alt="Support us"></a>
-  <a href="https://twitter.com/nestframework" target="_blank"><img src="https://img.shields.io/twitter/follow/nestframework.svg?style=social&label=Follow" alt="Follow us on Twitter"></a>
-</p>
-  <!--[![Backers on Open Collective](https://opencollective.com/nest/backers/badge.svg)](https://opencollective.com/nest#backer)
-  [![Sponsors on Open Collective](https://opencollective.com/nest/sponsors/badge.svg)](https://opencollective.com/nest#sponsor)-->
+1. **Node.js**: Версия **16.x** или выше.
+2. **npm**: Версия **7.x** или выше.
+3. **MongoDB**: Версия **5.x** или выше (локально или удалённый экземпляр).
+4. **Переменные окружения**:
+    - `USER_NAME`: Имя пользователя для авторизации.
+    - `MONGODB_URI`: Ссылка для подключения к базе данных MongoDB.
+    - `JWT_KEY`: Секретный ключ для генерации JWT.
+    - `HASHED_PASSWORD`: Захэшированный пароль (bcrypt). Пароль можно захешировать, используя скрипт `password-hasher.js`.
 
-## Description
+---
 
-[Nest](https://github.com/nestjs/nest) framework TypeScript starter repository.
+## Скрипты проекта
 
-## Project setup
+### Основные скрипты
 
-```bash
-$ npm install
+1. **`build`**
+   Команда для сборки приложения в продакшн-режиме. Скомпилированные файлы будут помещены в папку `dist`.
+
+   ```bash
+   npm run build
+   ```
+
+2. **`start`**
+   Запуск приложения в собранном виде (продакшн-режим). Требуется предварительная сборка с помощью команды `build`.
+
+   ```bash
+   npm run start
+   ```
+
+3. **`start:dev`**
+   Запуск приложения в режиме разработки с отслеживанием изменений.
+
+   ```bash
+   npm run start:dev
+   ```
+
+4. **`start:prod`**
+   Запуск приложения в продакшн-режиме. Использует скомпилированные файлы из папки `dist`.
+
+   ```bash
+   npm run start:prod
+   ```
+
+---
+
+## API сервера
+
+### Аутентификация
+
+#### **Маршрут: POST `/auth`**
+
+Используется для получения JWT-токена.
+
+**Тело запроса (DTO)**:
+
+```json
+{
+  "username": "string",
+  "password": "string"
+}
 ```
 
-## Compile and run the project
+**Пример успешного ответа**:
 
-```bash
-# development
-$ npm run start
-
-# watch mode
-$ npm run start:dev
-
-# production mode
-$ npm run start:prod
+```json
+{
+  "accessToken": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..."
+}
 ```
 
-## Run tests
+**Требования**:
 
-```bash
-# unit tests
-$ npm run test
+- Доступен без авторизации.
+- После получения `accessToken` его необходимо передавать в заголовке `Authorization` в формате `Bearer <token>` для всех маршрутов, требующих авторизации.
 
-# e2e tests
-$ npm run test:e2e
+---
 
-# test coverage
-$ npm run test:cov
+### Работа с клиентами
+
+#### **Маршруты без токена**
+
+1. **GET `/clients`**  
+   Возвращает список всех клиентов. Поддерживает фильтрацию и сортировку.
+
+   **Параметры запроса**:
+
+    - `search` — строка для поиска по имени и компании.
+    - `sortField` — поле для сортировки (`name`, `company`).
+    - `sortOrder` — порядок сортировки (`asc`, `desc`).
+
+   **Пример запроса**:
+
+   ```bash
+   GET /clients?search=John&sortField=name&sortOrder=asc
+   ```
+
+   **Пример ответа**:
+
+   ```json
+   [
+     {
+       "_id": "64b5d6e2f1b4",
+       "name": "John Doe",
+       "company": "Doe Inc."
+     },
+     {
+       "_id": "64b5d6e2f1b5",
+       "name": "Jane Smith",
+       "company": "Smith Ltd."
+     }
+   ]
+   ```
+
+2. **GET `/clients/:id`**  
+   Возвращает клиента по `id`.
+
+   **Пример запроса**:
+
+   ```bash
+   GET /clients/64b5d6e2f1b4
+   ```
+
+   **Пример ответа**:
+
+   ```json
+   {
+     "_id": "64b5d6e2f1b4",
+     "name": "John Doe",
+     "company": "Doe Inc.",
+     "details": {
+       "contact": "john.doe@example.com",
+       "about": "Client description",
+       "phoneNumber": "+123456789"
+     }
+   }
+   ```
+
+---
+
+#### **Маршруты, требующие токен**
+
+1. **POST `/clients`**  
+   Создаёт нового клиента.
+
+   **Тело запроса (DTO)**:
+
+   ```json
+   {
+     "name": "string",
+     "company": "string",
+     "details": {
+       "contact": "string",
+       "about": "string",
+       "phoneNumber": "string"
+     }
+   }
+   ```
+
+   **Пример успешного ответа**:
+
+   ```json
+   {
+     "_id": "64b5d6e2f1b4",
+     "name": "John Doe",
+     "company": "Doe Inc.",
+     "details": {
+       "contact": "john.doe@example.com",
+       "about": "Client description",
+       "phoneNumber": "+123456789"
+     }
+   }
+   ```
+
+2. **PUT `/clients/:id`**  
+   Обновляет данные клиента по `id`.
+
+   **Тело запроса (DTO)**:
+
+   ```json
+   {
+     "name": "Updated Name",
+     "company": "Updated Company",
+     "details": {
+       "contact": "updated.contact@example.com",
+       "about": "Updated description",
+       "phoneNumber": "+987654321"
+     }
+   }
+   ```
+
+   **Пример успешного ответа**:
+
+   ```json
+   {
+     "_id": "64b5d6e2f1b4",
+     "name": "Updated Name",
+     "company": "Updated Company",
+     "details": {
+       "contact": "updated.contact@example.com",
+       "about": "Updated description",
+       "phoneNumber": "+987654321"
+     }
+   }
+   ```
+
+3. **DELETE `/clients/:id`**  
+   Удаляет клиента по `id`.
+
+   **Пример успешного ответа**:
+
+   ```json
+   {
+     "message": "Client successfully deleted"
+   }
+   ```
+
+---
+
+## DTO
+
+### **UserDto (используется в аутентификации)**
+
+```typescript
+export class UserDto {
+  @IsString()
+  @IsNotEmpty()
+  username: string;
+
+  @IsString()
+  @IsNotEmpty()
+  password: string;
+}
 ```
 
-## Deployment
+### **ClientDto (основной DTO для клиента)**
 
-When you're ready to deploy your NestJS application to production, there are some key steps you can take to ensure it runs as efficiently as possible. Check out the [deployment documentation](https://docs.nestjs.com/deployment) for more information.
+```typescript
+export class ClientDto {
+  @IsString()
+  @IsNotEmpty()
+  name: string;
 
-If you are looking for a cloud-based platform to deploy your NestJS application, check out [Mau](https://mau.nestjs.com), our official platform for deploying NestJS applications on AWS. Mau makes deployment straightforward and fast, requiring just a few simple steps:
+  @IsString()
+  @IsNotEmpty()
+  company: string;
 
-```bash
-$ npm install -g mau
-$ mau deploy
+  details: ClientDetailsDto;
+}
 ```
 
-With Mau, you can deploy your application in just a few clicks, allowing you to focus on building features rather than managing infrastructure.
+### **ClientDetailsDto (подробности клиента)**
 
-## Resources
+```typescript
+export class ClientDetailsDto {
+  @IsString()
+  @IsNotEmpty()
+  contact: string;
 
-Check out a few resources that may come in handy when working with NestJS:
+  @IsString()
+  @IsOptional()
+  about?: string;
 
-- Visit the [NestJS Documentation](https://docs.nestjs.com) to learn more about the framework.
-- For questions and support, please visit our [Discord channel](https://discord.gg/G7Qnnhy).
-- To dive deeper and get more hands-on experience, check out our official video [courses](https://courses.nestjs.com/).
-- Deploy your application to AWS with the help of [NestJS Mau](https://mau.nestjs.com) in just a few clicks.
-- Visualize your application graph and interact with the NestJS application in real-time using [NestJS Devtools](https://devtools.nestjs.com).
-- Need help with your project (part-time to full-time)? Check out our official [enterprise support](https://enterprise.nestjs.com).
-- To stay in the loop and get updates, follow us on [X](https://x.com/nestframework) and [LinkedIn](https://linkedin.com/company/nestjs).
-- Looking for a job, or have a job to offer? Check out our official [Jobs board](https://jobs.nestjs.com).
-
-## Support
-
-Nest is an MIT-licensed open source project. It can grow thanks to the sponsors and support by the amazing backers. If you'd like to join them, please [read more here](https://docs.nestjs.com/support).
-
-## Stay in touch
-
-- Author - [Kamil Myśliwiec](https://twitter.com/kammysliwiec)
-- Website - [https://nestjs.com](https://nestjs.com/)
-- Twitter - [@nestframework](https://twitter.com/nestframework)
-
-## License
-
-Nest is [MIT licensed](https://github.com/nestjs/nest/blob/master/LICENSE).
+  @IsString()
+  @IsOptional()
+  phoneNumber?: string;
+}
+```
