@@ -1,8 +1,9 @@
-import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
+import { Prop, Schema, SchemaFactory } from "@nestjs/mongoose";
 import { Document } from 'mongoose';
+import { ClientDto } from '../dtos/client.dto';
 
 @Schema()
-export class Client extends Document {
+export class Client extends Document implements ClientDto {
   @Prop({ required: true })
   name: string;
 
