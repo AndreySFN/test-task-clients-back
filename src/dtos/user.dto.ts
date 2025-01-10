@@ -1,6 +1,5 @@
-import { IsString, IsNotEmpty, IsOptional } from 'class-validator';
-import { Document } from 'mongoose';
-import { Prop } from "@nestjs/mongoose";
+import { IsString, IsNotEmpty } from 'class-validator';
+import { Prop } from '@nestjs/mongoose';
 
 export class UserDto {
   @Prop({ required: true })
