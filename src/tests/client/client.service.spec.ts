@@ -1,7 +1,7 @@
 import { Test, TestingModule } from '@nestjs/testing';
 import { getModelToken } from '@nestjs/mongoose';
-import { ClientService } from '../../app/client/client.service';
-import { Client } from '../../app/client/schemas/client.schema';
+import { ClientService } from '../../modules/client/client.service';
+import { Client } from '../../schemas/client.schema';
 import { Model } from 'mongoose';
 
 const mockClient = {

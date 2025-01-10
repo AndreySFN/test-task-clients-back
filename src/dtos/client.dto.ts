@@ -1,5 +1,6 @@
 import { IsString, IsNotEmpty, IsOptional } from 'class-validator';
 import { Document } from 'mongoose';
+import { Prop } from "@nestjs/mongoose";
 
 export class ClientDto {
   @IsString()

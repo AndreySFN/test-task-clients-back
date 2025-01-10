@@ -1,6 +1,6 @@
 import { Test, TestingModule } from '@nestjs/testing';
-import { ClientController } from '../../app/client/client.controller';
-import { ClientService } from '../../app/client/client.service';
+import { ClientController } from '../../modules/client/client.controller';
+import { ClientService } from '../../modules/client/client.service';
 
 const mockClient = {
   _id: '64b7b9f8f8c8c9c8c9c8c9c8',
