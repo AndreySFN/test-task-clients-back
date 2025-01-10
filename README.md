@@ -45,7 +45,6 @@
    ```
 
 ---
-
 ## API сервера
 
 ### Аутентификация
@@ -83,35 +82,40 @@
 #### **Маршруты без токена**
 
 1. **GET `/clients`**  
-   Возвращает список всех клиентов. Поддерживает фильтрацию и сортировку.
+   Возвращает список всех клиентов. Поддерживает фильтрацию, сортировку и пагинацию.
 
    **Параметры запроса**:
 
-    - `search` — строка для поиска по имени и компании.
-    - `sortField` — поле для сортировки (`name`, `company`).
-    - `sortOrder` — порядок сортировки (`asc`, `desc`).
+   - `search` — строка для поиска по имени и компании.
+   - `sortField` — поле для сортировки (`name`, `company`).
+   - `sortOrder` — порядок сортировки (`asc`, `desc`).
+   - `page` — номер страницы (по умолчанию: 1).
+   - `limit` — количество записей на странице (по умолчанию: 10).
 
    **Пример запроса**:
 
    ```bash
-   GET /clients?search=John&sortField=name&sortOrder=asc
+   GET /clients?search=John&sortField=name&sortOrder=asc&page=2&limit=5
    ```
 
    **Пример ответа**:
 
    ```json
-   [
-     {
-       "_id": "64b5d6e2f1b4",
-       "name": "John Doe",
-       "company": "Doe Inc."
-     },
-     {
-       "_id": "64b5d6e2f1b5",
-       "name": "Jane Smith",
-       "company": "Smith Ltd."
-     }
-   ]
+   {
+     "data": [
+       {
+         "_id": "64b5d6e2f1b4",
+         "name": "John Doe",
+         "company": "Doe Inc."
+       },
+       {
+         "_id": "64b5d6e2f1b5",
+         "name": "Jane Smith",
+         "company": "Smith Ltd."
+       }
+     ],
+     "total": 42
+   }
    ```
 
 2. **GET `/clients/:id`**  
@@ -135,6 +139,27 @@
        "about": "Client description",
        "phoneNumber": "+123456789"
      }
+   }
+   ```
+
+3. **GET `/clients/total`**  
+   Возвращает общее количество клиентов, соответствующих фильтру.
+
+   **Параметры запроса**:
+
+   - `search` — строка для поиска по имени и компании.
+
+   **Пример запроса**:
+
+   ```bash
+   GET /clients/total?search=John
+   ```
+
+   **Пример ответа**:
+
+   ```json
+   {
+     "total": 42
    }
    ```
 
@@ -255,16 +280,16 @@ export class ClientDto {
 
 ```typescript
 export class ClientDetailsDto {
-  @IsString()
-  @IsNotEmpty()
-  contact: string;
+   @IsString()
+   @IsNotEmpty()
+   contact: string;
 
-  @IsString()
-  @IsOptional()
-  about?: string;
+   @IsString()
+   @IsOptional()
+   about?: string;
 
-  @IsString()
-  @IsOptional()
-  phoneNumber?: string;
+   @IsString()
+   @IsOptional()
+   phoneNumber?: string;
 }
 ```
