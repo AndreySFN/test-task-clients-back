@@ -1,8 +1,9 @@
 {
   "name": "clients-back",
-  "version": "0.0.1",
-  "description": "",
-  "author": "",
+  "version": "1.0.0",
+  "description": "Test task for \"Forte 21\" backend",
+  "author": "Andrei V. Petrov",
+  "repository": "https://github.com/AndreySFN/test-task-clients-back",
   "private": true,
   "license": "UNLICENSED",
   "scripts": {

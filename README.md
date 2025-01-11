@@ -1,50 +1,109 @@
+# Сервер для управления клиентами (тестовое задание Форте 21)
 
-# Требования к системе для запуска
+Этот сервер предоставляет функционал для управления клиентами, включая создание, обновление, удаление и получение данных. Он разработан для демонстрации возможностей работы с REST API, аутентификацией и взаимодействием с базой данных MongoDB.
+
+## Основные возможности сервера
+
+1. **Аутентификация**
+   - Поддержка JWT-токенов для обеспечения безопасности.
+   - Генерация токенов с ограниченным сроком действия (15 минут).
+
+2. **Работа с клиентами**
+   - Получение списка клиентов с поддержкой фильтрации, сортировки и пагинации.
+   - Получение данных конкретного клиента по ID.
+   - Создание, обновление и удаление клиентов с использованием защищённых маршрутов.
+
+3. **Гибкая настройка**
+   - Возможность указания переменных окружения для конфигурации базы данных, аутентификации и других параметров.
+
+4. **Разработка и тестирование**
+   - Поддержка разработки в режиме live-reload.
+   - Включены тестовые скрипты для обеспечения качества кода и функциональности.
+
+---
+
+## Требования к системе для запуска
 
 1. **Node.js**: Версия **16.x** или выше.
 2. **npm**: Версия **7.x** или выше.
 3. **MongoDB**: Версия **5.x** или выше (локально или удалённый экземпляр).
 4. **Переменные окружения**:
-    - `USER_NAME`: Имя пользователя для авторизации.
-    - `MONGODB_URI`: Ссылка для подключения к базе данных MongoDB.
-    - `JWT_KEY`: Секретный ключ для генерации JWT.
-    - `HASHED_PASSWORD`: Захэшированный пароль (bcrypt). Пароль можно захешировать, используя скрипт `password-hasher.js`.
+   - `USER_NAME`: Имя пользователя для авторизации.
+   - `MONGODB_URI`: Ссылка для подключения к базе данных MongoDB.
+   - `JWT_KEY`: Секретный ключ для генерации JWT.
+   - `HASHED_PASSWORD`: Захэшированный пароль (bcrypt). Пароль можно захешировать, используя скрипт `password-hasher.js`.
+
+---
+
+## Установка и запуск
+
+1. Установите зависимости:
+   ```bash
+   npm install
+   ```
+
+2. Запустите приложение в нужном режиме, используя один из скриптов, указанных ниже.
 
 ---
 
 ## Скрипты проекта
 
+```json
+"scripts": {
+    "build": "nest build",
+    "format": "prettier --write \"src/**/*.ts\" \"src/tests/**/*.ts\"",
+    "start": "nest start",
+    "start:dev": "nest start --watch",
+    "start:debug": "nest start --debug --watch",
+    "start:prod": "node dist/main",
+    "lint": "eslint \"{src,apps,libs,test}/**/*.ts\" --fix",
+    "test": "jest",
+    "test:watch": "jest --watch",
+    "test:cov": "jest --coverage",
+    "test:debug": "node --inspect-brk -r tsconfig-paths/register -r ts-node/register node_modules/.bin/jest --runInBand"
+}
+```
+
 ### Основные скрипты
 
-1. **`build`**
+1. **`build`**  
    Команда для сборки приложения в продакшн-режиме. Скомпилированные файлы будут помещены в папку `dist`.
-
    ```bash
    npm run build
    ```
 
-2. **`start`**
+2. **`start`**  
    Запуск приложения в собранном виде (продакшн-режим). Требуется предварительная сборка с помощью команды `build`.
-
    ```bash
    npm run start
    ```
 
-3. **`start:dev`**
+3. **`start:dev`**  
    Запуск приложения в режиме разработки с отслеживанием изменений.
-
    ```bash
    npm run start:dev
    ```
 
-4. **`start:prod`**
+4. **`start:prod`**  
    Запуск приложения в продакшн-режиме. Использует скомпилированные файлы из папки `dist`.
-
    ```bash
    npm run start:prod
    ```
 
+5. **`test`**  
+   Запуск тестов.
+   ```bash
+   npm run test
+   ```
+
+6. **`lint`**  
+   Проверка кода на ошибки и автоматическое исправление.
+   ```bash
+   npm run lint
+   ```
+
 ---
+
 ## API сервера
 
 ### Аутентификация
@@ -74,6 +133,7 @@
 
 - Доступен без авторизации.
 - После получения `accessToken` его необходимо передавать в заголовке `Authorization` в формате `Bearer <token>` для всех маршрутов, требующих авторизации.
+- `accessToken` действует 15 минут (JWT-blacklist в планах).
 
 ---
 
@@ -85,18 +145,11 @@
    Возвращает список всех клиентов. Поддерживает фильтрацию, сортировку и пагинацию.
 
    **Параметры запроса**:
-
    - `search` — строка для поиска по имени и компании.
    - `sortField` — поле для сортировки (`name`, `company`).
    - `sortOrder` — порядок сортировки (`asc`, `desc`).
    - `page` — номер страницы (по умолчанию: 1).
    - `limit` — количество записей на странице (по умолчанию: 10).
-
-   **Пример запроса**:
-
-   ```bash
-   GET /clients?search=John&sortField=name&sortOrder=asc&page=2&limit=5
-   ```
 
    **Пример ответа**:
 
@@ -107,11 +160,6 @@
          "_id": "64b5d6e2f1b4",
          "name": "John Doe",
          "company": "Doe Inc."
-       },
-       {
-         "_id": "64b5d6e2f1b5",
-         "name": "Jane Smith",
-         "company": "Smith Ltd."
        }
      ],
      "total": 42
@@ -121,126 +169,19 @@
 2. **GET `/clients/:id`**  
    Возвращает клиента по `id`.
 
-   **Пример запроса**:
-
-   ```bash
-   GET /clients/64b5d6e2f1b4
-   ```
-
-   **Пример ответа**:
-
-   ```json
-   {
-     "_id": "64b5d6e2f1b4",
-     "name": "John Doe",
-     "company": "Doe Inc.",
-     "details": {
-       "contact": "john.doe@example.com",
-       "about": "Client description",
-       "phoneNumber": "+123456789"
-     }
-   }
-   ```
-
 3. **GET `/clients/total`**  
-   Возвращает общее количество клиентов, соответствующих фильтру.
-
-   **Параметры запроса**:
-
-   - `search` — строка для поиска по имени и компании.
-
-   **Пример запроса**:
-
-   ```bash
-   GET /clients/total?search=John
-   ```
-
-   **Пример ответа**:
-
-   ```json
-   {
-     "total": 42
-   }
-   ```
-
----
+   Возвращает общее количество клиентов.
 
 #### **Маршруты, требующие токен**
 
 1. **POST `/clients`**  
    Создаёт нового клиента.
 
-   **Тело запроса (DTO)**:
-
-   ```json
-   {
-     "name": "string",
-     "company": "string",
-     "details": {
-       "contact": "string",
-       "about": "string",
-       "phoneNumber": "string"
-     }
-   }
-   ```
-
-   **Пример успешного ответа**:
-
-   ```json
-   {
-     "_id": "64b5d6e2f1b4",
-     "name": "John Doe",
-     "company": "Doe Inc.",
-     "details": {
-       "contact": "john.doe@example.com",
-       "about": "Client description",
-       "phoneNumber": "+123456789"
-     }
-   }
-   ```
-
 2. **PUT `/clients/:id`**  
    Обновляет данные клиента по `id`.
 
-   **Тело запроса (DTO)**:
-
-   ```json
-   {
-     "name": "Updated Name",
-     "company": "Updated Company",
-     "details": {
-       "contact": "updated.contact@example.com",
-       "about": "Updated description",
-       "phoneNumber": "+987654321"
-     }
-   }
-   ```
-
-   **Пример успешного ответа**:
-
-   ```json
-   {
-     "_id": "64b5d6e2f1b4",
-     "name": "Updated Name",
-     "company": "Updated Company",
-     "details": {
-       "contact": "updated.contact@example.com",
-       "about": "Updated description",
-       "phoneNumber": "+987654321"
-     }
-   }
-   ```
-
 3. **DELETE `/clients/:id`**  
    Удаляет клиента по `id`.
-
-   **Пример успешного ответа**:
-
-   ```json
-   {
-     "message": "Client successfully deleted"
-   }
-   ```
 
 ---
 
@@ -280,16 +221,17 @@ export class ClientDto {
 
 ```typescript
 export class ClientDetailsDto {
-   @IsString()
-   @IsNotEmpty()
-   contact: string;
+  @IsString()
+  @IsNotEmpty()
+  contact: string;
 
-   @IsString()
-   @IsOptional()
-   about?: string;
+  @IsString()
+  @IsOptional()
+  about?: string;
 
-   @IsString()
-   @IsOptional()
-   phoneNumber?: string;
+  @IsString()
+  @IsOptional()
+  phoneNumber?: string;
 }
 ```
+
