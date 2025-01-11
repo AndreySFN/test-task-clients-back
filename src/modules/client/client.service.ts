@@ -1,9 +1,11 @@
-import { BadRequestException, Injectable } from "@nestjs/common";
+import { Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
 import { Client } from '../../schemas/client.schema';
 import { ClientDto } from '../../dtos/client.dto';
-// import { CreateClientDto } from './schemas/dtos/CreateClientDTO';
+import { wrongIdHandler } from '../../utils/db-utils';
+
+// TODO: Подумать, что вынести
 
 @Injectable()
 export class ClientService {
@@ -13,8 +15,24 @@ export class ClientService {
     return this.clientModel.create(client);
   }
 
-  async findAll(query?: any): Promise<ClientDto[]> {
-    const { search, sortField, sortOrder } = query || {};
+  async getTotal(query?: any): Promise<number> {
+    const { search } = query || {};
+
+    const filter = search
+      ? {
+          $or: [
+            { name: new RegExp(search, 'i') },
+            { company: new RegExp(search, 'i') },
+          ],
+        }
+      : {};
+
+    return this.clientModel.countDocuments(filter).exec();
+  }
+
+  async findAll(query?: any): Promise<{ data: ClientDto[]; total: number }> {
+    const { search, sortField, sortOrder, limit = 10, page = 1 } = query || {};
+
     const filter = search
       ? {
           $or: [
@@ -27,20 +45,36 @@ export class ClientService {
     const sort = sortField
       ? { [sortField]: sortOrder === 'desc' ? -1 : 1 }
       : {};
-    // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-    // @ts-expect-error
-    return this.clientModel.find(filter).sort(sort).exec();
+
+    const skip = (page - 1) * limit;
+
+    const total = await this.clientModel.countDocuments(filter);
+
+    const data = await this.clientModel
+      .find(filter)
+      // @ts-expect-error TODO: Убрать
+      .sort(sort)
+      .select('-details')
+      .skip(skip)
+      .limit(Number(limit))
+      .exec();
+
+    return { data, total };
   }
 
   async findOne(id: string): Promise<ClientDto> {
-    return this.clientModel.findById(id).exec();
+    return wrongIdHandler(await this.clientModel.findById(id).exec());
   }
 
   async update(id: string, client: Partial<ClientDto>): Promise<ClientDto> {
-    return this.clientModel.findByIdAndUpdate(id, client, { new: true }).exec();
+    return wrongIdHandler(
+      await this.clientModel
+        .findByIdAndUpdate(id, client, { new: true })
+        .exec(),
+    );
   }
 
   async remove(id: string): Promise<ClientDto> {
-    return this.clientModel.findByIdAndDelete(id).exec();
+    return wrongIdHandler(await this.clientModel.findByIdAndDelete(id).exec());
   }
 }

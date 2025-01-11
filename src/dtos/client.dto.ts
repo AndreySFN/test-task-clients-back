@@ -1,6 +1,5 @@
 import { IsString, IsNotEmpty, IsOptional } from 'class-validator';
-import { Document } from 'mongoose';
-import { Prop } from "@nestjs/mongoose";
+import { ClientDetails } from '../schemas/client-details.schema';
 
 export class ClientDto {
   @IsString()
@@ -11,15 +10,6 @@ export class ClientDto {
   @IsNotEmpty()
   company: string;
 
-  @IsString()
-  @IsNotEmpty()
-  contact: string;
-
-  @IsString()
   @IsOptional()
-  about: string;
-
-  @IsString()
-  @IsOptional()
-  phoneNumber: string;
+  details: ClientDetails;
 }

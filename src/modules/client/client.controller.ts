@@ -22,6 +22,11 @@ export class ClientController {
     return this.clientService.findAll(query);
   }
 
+  @Get('total')
+  async getTotal() {
+    return this.clientService.getTotal();
+  }
+
   @Get(':id')
   async findOne(@Param('id') id: string) {
     return this.clientService.findOne(id);
