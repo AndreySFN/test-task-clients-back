@@ -4,6 +4,7 @@ import { Model } from 'mongoose';
 import { Client } from '../../schemas/client.schema';
 import { ClientDto } from '../../dtos/client.dto';
 import { wrongIdHandler } from '../../utils/db-utils';
+import { ClientListDto } from '../../dtos/client-list.dto';
 
 // TODO: Подумать, что вынести
 
@@ -30,7 +31,7 @@ export class ClientService {
     return this.clientModel.countDocuments(filter).exec();
   }
 
-  async findAll(query?: any): Promise<{ data: ClientDto[]; total: number }> {
+  async findAll(query?: any): Promise<ClientListDto> {
     const { search, sortField, sortOrder, limit = 10, page = 1 } = query || {};
 
     const filter = search

@@ -32,7 +32,7 @@
    - `MONGODB_URI`: Ссылка для подключения к базе данных MongoDB.
    - `JWT_KEY`: Секретный ключ для генерации JWT.
    - `HASHED_PASSWORD`: Захэшированный пароль (bcrypt). Пароль можно захешировать, используя скрипт `password-hasher.js`.
-   - `NODE_ENV` (не обязательно): при установке в `develop` отключает **CORS-политик**.
+   - `NODE_ENV` (не обязательно): при установке в `develop` отключает **CORS-политики**.
 
 ---
 
@@ -234,5 +234,21 @@ export class ClientDetailsDto {
   @IsOptional()
   phoneNumber?: string;
 }
+```
+
+### **ClientListDto (список клиентов)**
+
+```typescript
+import { IsArray, IsNumber } from 'class-validator';
+import { ClientDto } from './client.dto';
+
+export class ClientListDto {
+  @IsArray()
+  data: ClientDto[];
+
+  @IsNumber()
+  total: number;
+}
+
 ```
 

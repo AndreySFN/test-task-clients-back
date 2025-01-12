@@ -1,5 +1,5 @@
 import { IsString, IsNotEmpty, IsOptional } from 'class-validator';
-import { ClientDetails } from '../schemas/client-details.schema';
+import { ClientDetailsDto } from './client-details.dto';
 
 export class ClientDto {
   @IsString()
@@ -11,5 +11,5 @@ export class ClientDto {
   company: string;
 
   @IsOptional()
-  details: ClientDetails;
+  details: ClientDetailsDto;
 }
